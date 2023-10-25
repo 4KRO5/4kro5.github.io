@@ -1,0 +1,127 @@
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+:root {
+    --movietitles-: #ffffff;
+    --primario-4: #dfb040;
+    --gris-2: #00d2f7;
+    --infotable-: #B5BAF2;
+    /*Tabla de informacion*/
+    --nvar-4: #202DBC;
+    /*nvar y texto de los keyword en hover*/
+    --background-: #E9ECFB;
+    /*keyword y background*/
+    --hover-: #B5BAF2;
+    /*Hover, letras del home y fechas*/
+}
+
+.nav-background {
+    /*Fade*/
+    background: linear-gradient(0deg, #E9ECFB 0.39%, rgba(0, 0, 0, 0.00) 35%), url('media/Fondo.png') lightgray;
+    /*Posicion de la imagen*/
+    background-size: cover;
+    background-position: center 43%;
+    background-repeat: no-repeat;
+    /* Altura mínima del navbar */
+    min-height: 43vh;
+}
+
+body {
+    background-color: #E9ECFB;
+}
+
+
+
+.button {
+    display: inline-block;
+    background: #4285f4;
+    color: #fff;
+    text-transform: uppercase;
+    padding: 20px 30px;
+    border-radius: 5px;
+    box-shadow: 0px 17px 10px -10px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    -webkit-transition: all ease-in-out 300ms;
+    transition: all ease-in-out 300ms;
+}
+
+.button:hover {
+    box-shadow: 0px 37px 20px -20px rgba(0, 0, 0, 0.2);
+    -webkit-transform: translate(0px, -10px) scale(1.2);
+    transform: translate(0px, -10px) scale(1.2);
+}
+
+.scrollable-card-deck {
+    display: flex;
+    overflow-x: auto;
+}
+
+.card {
+    flex: 0 0 16rem;
+    /* Ancho máximo de cada tarjeta */
+    margin-right: 10px;
+    /* Espacio entre las tarjetas */
+    height: 30rem;
+    /* Altura de las tarjetas*/
+    border: 0;
+    /* Elimina el borde del card */
+    border-radius: 20px;
+    /* borde redondo para la imgen */
+    background-color: #E9ECFB;
+    /*Hace que los espacios en blanco no sean visibles */
+}
+
+.card-img-container {
+    width: 100%;
+    height: 22rem;
+    /* Tamaño fijo del contenedor de la imagen*/
+    overflow: hidden;
+    /* Para recortar imágenes más grandes */
+    border-radius: 20px;
+    /* borde redondo para la imgen */
+}
+
+.card-img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    /* Asegura que la imagen llene el contenedor */
+    
+}
+
+/*Custom Scroll bar*/
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #202DBC;
+    border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(112, 98, 236, 0.135);
+    border-radius: 5px;
+}
+
+/*Puntuacion de la pelicula en proceso de cambio*/
+.puntuacion {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.668);
+    color: #fad000;
+    padding: 10px; 
+    font-size: 24px; 
+    border-radius: 5px 0 0 0;
+}
+
+.card-body {
+    background-color: #E9ECFB; 
+    color: #000000;
+    
+}
+
+.card-title:hover {
+    color: #202DBC; /* Cambia el color del título al pasar el cursor */
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="login_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/css/bootstrap.min.css"/>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid" style=" height:100vh !important">
+        <div class="row body-login global-contenedor" id ="contenedor" >
+          <div class="col-6 ">
+          </div>
+          <div class="col-6 background" >
+            <div class="card border-0 login-form">
+                <div style="padding: 50px;">
+                    <h1 class="card-title-login text-center">
+                        TheMovieDB
+                    </h1>
+                    <div class="card-text">
+                        <form>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1"></label>
+                                <input type="email" name="" v-model="email" class="form-control form-control-sm"
+                                id="exampleInputEmail1" placeholder="Usuario" > 
+                            </div>
+    
+                            <div class="form-group">
+                                <label for="exampleInputPassword1"></label>
+                                <input type="password" name="" v-model="password" class="form-control form-control-sm"
+                                id="exampleInputPassword1" placeholder="Contraseña"> 
+                            </div>
+    
+                            <button @click = "login" type="submit" class="btn border-0 btn-primary btn-block" style="color: white;">
+                                Iniciar Sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+          </div>
+        </div>
+      </div>
+
+    <script type="text/javascript">
+
+        const { createApp } = Vue;
+        var test = createApp({
+            data () {
+                return {
+                    email: null,
+                    users: "",
+                    password: ""
+                }
+            },
+            methods: {
+                login(e){
+                    e.preventDefault();
+
+                    var data = new FormData();
+                    data.append('username', this.email); 
+                    data.append('password', this.password); 
+                    data.append('request_token', '');
+
+                    var config = {
+                    method: 'post',
+                    url: 'https://api.themoviedb.org/3/authentication/token/validate_with_login?api_key=37b1002f1cbf77bd185d874922aeee70',
+                    headers: { 
+
+                    },
+                    data : data
+                    };
+
+                    axios(config)
+                    .then(function (response) {
+                        if (response.data.success){
+
+                            swal({
+                                title: "Awesome!",
+                                text: "Welcome!",
+                                icon: "success",
+                                button: null,
+                                timer: 2000,
+                                iconColor: 'black'
+                            });
+
+                            console.log("entro")
+                            localStorage.setItem("username", test.email);
+
+                            setTimeout(() => {
+                                window.location="index.html"
+                            }, 2000);
+                            
+                        }
+                    console.log(JSON.stringify(response.data));
+                    })
+                    .catch(function (error) {
+                        swal({
+                        title: "Oops...",
+                        text: "Try again",
+                        icon: "error",
+                        button: null,
+                        timer: 2000,
+                        });
+                    }); 
+                },
+            },
+            mounted(){
+                if(localStorage.username){
+                    location.href= "index.html";
+                }
+            }
+        }).mount("#contenedor")
+
+    </script>
+</body>
+</html>

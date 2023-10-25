@@ -1,0 +1,164 @@
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+
+:root {
+  --movietitles-: #ffffff;
+  --primario-4: #dfb040;
+  --gris-2: #00d2f7;
+  --infotable-: #b5baf2; /* Tabla de información */
+  --nvar-4: #202dbc; /* Navegación y texto de los keyword en hover */
+  --background-: #e9ecfb; /* Keyword y background */
+  --hover-: #b5baf2; /* Hover, letras del home y fechas */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--background-);
+  color: var(--nvar-4);
+}
+
+.active-button {
+  background-color: var(--nvar-4);
+  color: var(--movietitles);
+}
+
+.btn-check {
+  background-color: var(--infotable-);
+}
+
+.badge {
+  background-color: var(--nvar-4);
+  margin: 5px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.infoSerie {
+  background-color: var(--nvar-4);
+}
+
+.img {
+  margin-left: -50px;
+  padding-right: 50px;
+}
+
+.card img {
+  max-width: 100%;
+  height: auto;
+  border: none;
+}
+
+.video-preview-link {
+  height: 100px;
+  width: 250px;
+}
+
+.col.btn-danger.rounded-circle.v-if .fa-solid {
+  color: var(--movietitles);
+}
+
+.col.btn-danger.btn-sm.v-else .fa-regular {
+  color: var(--movietitles);
+}
+
+.container {
+  width: auto;
+  height: auto;
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.button-container span {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.btn {
+  padding: 8px 16px;
+  background-color: var(--nvar-4);
+  color: var(--movietitles-);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-outline-primary {
+  border: 1px solid var(--nvar-4);
+  background-color: transparent;
+  color: var(--nvar-4);
+}
+
+.card {
+  border: none;
+}
+
+.p-color {
+  color: var(--nvar-4);
+}
+
+h6 {
+  color: var(--nvar-4);
+}
+
+.card-body {
+  background-color: var(--infotable-);
+}
+
+.cardsecond {
+  height: 362px;
+}
+
+.rating {
+  border: none;
+  float: left;
+}
+
+.rating > input {
+  display: none;
+}
+.rating > label:before {
+  margin: 5px;
+  font-size: 1.25em;
+  font-family: FontAwesome;
+  display: inline-block;
+  content: "\f005";
+}
+
+.rating > .half:before {
+  content: "\f089";
+  position: absolute;
+}
+
+.rating > label {
+  color: #ddd;
+  float: right;
+}
+
+.gallery-container {
+  display: flex;
+  flex-direction: row;
+  height: 200px;
+  overflow-x: scroll;
+}
+
+.rating > input:checked ~ label,
+.rating:not(:checked) > label:hover,
+.rating:not(:checked) > label:hover ~ label {
+  color: #ffd700;
+}
+
+.rating > input:checked + label:hover,
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label,
+.rating > input:checked ~ label:hover ~ label {
+  color: #ffed85;
+}

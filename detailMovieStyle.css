@@ -1,0 +1,183 @@
+@import url(//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css);
+:root{
+    --black-:#000000;
+    --nvar-: #202DBC;
+    --background-: #E9ECFB;
+    --hover-: #B5BAF2;
+    
+}
+
+/*Body*/
+.background{
+    background-color: var(--background-) !important;
+}
+
+/* navbar */
+.navbar{
+    background-color: var(--nvar-);
+    color: var(--hover-);
+}
+.nav-link{
+    font-size: 18px;
+    color: var(--hover-);
+    cursor: pointer;
+}
+.nav-link:hover{
+    color: var(--movietitles-);
+}
+.nav-link .active{
+    color: var(--movietitles-);
+}
+
+/* Info peliculas */
+.info-peli {
+    background-color: var(--nvar-);
+    height: 70%;
+    padding: 50px;
+}
+.card-img-top{
+    max-height: 600px;
+    max-width: 400px;
+}
+.img-fluid.rounded {
+    border-radius: 32px;
+}
+.peli-detalles{
+    display: flex;
+}
+.favorite{
+    display: flex;
+    width: calc(100%);
+    margin-bottom: 20px;
+}
+
+/*Imagenes*/
+.card-background{
+    background-color: var(--hover-) !important;
+}
+.media{
+
+    max-height: 100%;
+    max-width: 100%;
+}
+
+/*Textos*/
+.bg-dark{
+    background-color: var(--background-) !important;
+}
+.Titulo{
+    color: var(--background-);
+
+}
+.subTitulo{
+    color: var(--background-);
+
+}
+.text-white{
+    color: var(--hover-);
+}
+.text-blue{
+    color: var(--nvar-);
+    
+}
+.text-blue-white{
+    color: var(--hover-);
+}
+.text-black{
+    color: var(--black-);
+}
+.text-blue-bottom{
+    background-color: var(--hover-);
+    color: var(--black-);
+    padding: 10px;
+    border-radius: 16px;
+    cursor: pointer;
+}
+.text-blue-bottom:hover{
+    background-color: var(--background-);
+    color: var(--black-);
+    padding: 10px;
+    border-radius: 16px;
+    cursor: pointer;
+}
+
+/*Scroll Bar*/
+::-webkit-scrollbar{
+    width: 1em;
+}
+::-webkit-scrollbar-track{
+    background: var(--background-);
+    margin-block: 0rem;
+}
+::-webkit-scrollbar-thumb{
+    background: var(--nvar-4);
+    border-radius: 100vw;
+}
+::-webkit-scrollbar-thumb:hover{
+    background: var(--hover-);
+}
+
+.circle-button {
+    width: 40px;
+    height: 40px; 
+    border-radius: 50%;
+}
+
+
+/*Actores*/
+.carrusel {
+    display: flex;
+    flex-wrap: no-wrap;
+    overflow-x: auto;
+    margin: 20px;
+}
+.imgCarrusel {
+    flex: 0 0 auto;
+    width: auto;
+    height: 100px;
+    max-width: 100%;
+    margin-right: 10px;
+}
+
+/*Keywords*/
+.btn-more-info-home{
+    background-color: var(--hover-);
+    color: var(--background-);
+    border-style: none;
+}
+.btn-more-info-home:hover{
+    background-color: var(--background-);
+    color: var(--hover-);
+    border-style: none;
+}
+
+/*Estrellas*/
+.rating {
+    border: none;
+    float: left;
+}
+.rating > input { display: none; }
+.rating > label:before {
+    margin: 5px;
+    font-size: 1.25em;
+    font-family: FontAwesome;
+    display: inline-block;
+    content: "\f005";
+}
+.rating > .half:before {
+    content: "\f089";
+    position: absolute;
+} 
+.rating > label {
+    color: #ddd;
+   float: right;
+}
+
+.rating > input:checked ~ label, 
+.rating:not(:checked) > label:hover, 
+.rating:not(:checked) > label:hover ~ label { color: #FFD369;}
+
+.rating > input:checked + label:hover,
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, 
+.rating > input:checked ~ label:hover ~ label { color: #FFD369;  } 

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>TV Season</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/0d70ca7b60.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/0d70ca7b60.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="detalleTemporada.css">
+  </head>
+
+  <body>
+    <div id="app">
+      <!--inicio Navbar  -->
+      <nav class="navbar navbar-expand-lg" style=" color:#ffff; background-color: #202DBC;;">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          </button>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item mt-2 ms-3">
+                <h5>
+                    {{username}}
+                </h5>
+              </li>
+            </ul>
+            <form class="d-flex ms-4">
+              <a class="btn btn-primary" @click="logout">
+                <i class="fas fa-door-open"></i>
+                Log Out
+            </a>
+            </form>
+          </div>
+        </div>
+      </nav>
+    <!-- fin Navbar -->
+    
+    <!-- Portada del temporada -->
+    <div class="container-fluid text-light ">
+      <div class="row" style="background-color: #202DBC; margin-bottom: 3em;">
+       <div class="col-sm-2 " style="margin-top:1em; margin-bottom: 1em; padding-left: 50px;  " >
+         <img v-if="temporada.poster_path != null" class="card-img" style="border-radius: 20px; " :src="`https://image.tmdb.org/t/p/w300/${temporada.poster_path}`">
+         <img v-else class="card-img" src="img/no-image-h.png" style="width: 6rem">    
+       </div>
+      
+       <div class="col-sm-6" style="margin-top:3em" >
+        <h1> {{temporada.name}} ({{year}})</h1> 
+        <h3>Episodios {{nEpisodios}}</h3>
+         <a :href="`detailTV.html?id=${temporada.serieID}`" class="text-light"><i class="fa-solid fa-left-long"></i> Volver a lista de temporadas</a>
+       </div>
+        
+     </div>
+    </div>
+    
+      <!-- Contenedor principal container  -->
+      <div class="container" >
+          <!-- Card de la lista de series -->
+        <div class="card" v-for="episodio in episodios" style="margin-bottom: 1rem; border-radius: 10px; background-color: #B5BAF2">
+            <div class="row" >
+                <div class="col-sm-3 ">
+                    <img v-if="episodio.still_path != null" style="border-radius: 7px 0px 0px 0px;" :src="`https://image.tmdb.org/t/p/w300/${episodio.still_path}`"
+                    :alt="`Episodio ${episodio.episode_number} - ${episodio.name}`">
+                    <!-- Para no cargar la imagen -->
+                </div>
+
+                <div class="col-sm-8">
+                    <div class="card-body" style="color: white">
+
+                        <h5 class="card-title">
+                          <span style="color:#202DBC;"><b>{{episodio.episode_number}} - {{episodio.name}}</b> </span>
+                          <div class="row">
+                            <div class="col-8"> <span class="badge" style="background-color: #202DBC; margin-top: 1em; color: #ffc107; margin-right: 1em;"> <i class="fa-solid fa-star"></i>
+                               <span style="color: white;">{{episodio.vote_average}}</span> </span>
+                              <span >{{episodio.air_date}}  {{episodio.runtime}} </span></div>
+                          </div>
+                        </h5>
+                        <!-- Cuando no carga la imagen o del descripción -->
+                        <div class="row">
+                          <p v-if="episodio.overview != &quot&quot" class="card-text">{{episodio.overview}}</p>
+                          <p v-else class="card-center">No tenemos una descripción general de este episodio.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Boton Expandir a detalles del actores y de imagenes -->
+                <div class="accordion accordion-flush" id="accordionFlushExample">
+                  <div class="accordion-item" style="border-radius: 4px;">
+                    <h2 class="accordion-header" :id="episodio.episode_number">
+                      <button style="background-color:#E9ECFB;  color: #202DBC;" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#flush-collapse' + episodio.episode_number" aria-expanded="false" :aria-controls="'flush-collapse' + episodio.episode_number">
+                        <div style="text-align: center; width: 100%"> <b>Expand</b></div>
+                      </button>
+                    </h2>
+                    <!-- Esto sera cuando habra el expand nos mostrara los detalles -->
+                    <div :id="'flush-collapse' + episodio.episode_number" class="accordion-collapse collapse" :aria-labelledby="'flush-heading' + episodio.episode_number" >
+                      <div class="accordion-body" style="border-radius:10px; background-color: #E9ECFB; color: white">
+                 
+                        <div class="row">
+                          <div class="col-sm-3" style="color: #202DBC" >
+                            <h4 >Equipo {{episodio.crew.length}}</h4>
+                            <p class="h6">Dirigido por:</p>
+                            <p v-for="director in episodio.directores"> <a :href="`detailActor.html?id=${director.id}`" class="text-decoration-none">{{director.name}}</a></p>
+                            <p v-if="episodio.directores == null" style="color: #202DBC">No se ha añadido ningun director.</p>
+                            <p class="h6" style="color: #202DBC">Escrito por: </p>
+
+                            <p v-for="escritor in episodio.escritores"><a :href="`detailActor.html?id=${escritor.id}`" class="text-decoration-none">{{escritor.name}}</a></p>
+                            <!-- Cuando no carga  -->
+                            <p v-if="episodio.escritores == null">No se ha agregado ningún escritor.</p>
+                          </div>
+  
+                          <div class="col-sm-9" style="border-radius: 10px;">
+                            <h4 style="color: #202DBC">Estrellas Invitadas <span style="color: black;">{{episodio.guest_stars.length}}</span></h4>
+                            <div >
+
+                        <!-- Esto no carga si no hay un estrella asignado o información -->
+                            <ol v-if="episodio.guest_stars.length > 0" class="people credits">
+                              <li v-for="actor in episodio.guest_stars">
+                                <img v-if="actor.profile_path != null" class="profile" :src="`https://image.tmdb.org/t/p/w300/${actor.profile_path}`" alt="">
+                                <img v-else class="" src="img/no-image-h.png" alt="">
+                                <div class="info">
+                                  <p><a :href="`detailActor.html?id=${actor.id}`" class="h6 text-decoration-none" style="color: #202DBC"><br>{{actor.name}}</a></p>
+                                  <p style="color: black">{{actor.character}}</p>
+                                </div>
+                              </li>
+                            </ol>
+                               <!-- No cargara la información -->
+                               <div v-else class="" style="color: #7e8a8c">
+                                No se ha agregado ningún escritor.
+                              </div>
+                            </div>
+                      </div>
+                    </div>
+
+                    <!-- Separación de Imagenes por episodio -->
+                    <hr style="color: #202DBC"/>
+
+                    <div class="expanded_info wrap" style="color: #202DBC;">
+                      <div class="wrapper"> 
+                        <p class="h4"> 
+                          <b>Imagenes de episodio</b>
+                          <span class="ms-2">{{episodio.imglength}}</span>
+                        </p>
+                      </div>
+                        <div class="outer" v-if="episodio.imglength > 0">
+                          <div v-for="imagen in episodio.imagenes">
+                              <img style="border-radius: 5px; margin-bottom: 3px;" class="backdrop":src="`https://image.tmdb.org/t/p/w300/${imagen.file_path}`">
+                          </div>
+                        </div>
+                        <p v-else style="color: #7e8a8c">No se han agregado imágenes de episodios.</p>
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Peticiones API -->
+    <script type="text/javascript">
+        const { createApp } = Vue;
+        const data = null;
+        const error = null;
+
+        const app = createApp({
+            data() {
+              return {
+                username: localStorage.getItem('username'),
+                temporada: '',
+                episodios: '',
+                year: '',
+                nEpisodios: '',
+                imagenes: null,
+              };
+            },
+
+            methods: {
+              logout(){
+                  localStorage.removeItem('username');
+                  window.location="login.html"
+              },
+              detallesTemporada() {
+                let urlString = window.location.href;
+                var url = new URL(urlString);
+                var tv = url.searchParams.get('tv');
+                var season = url.searchParams.get('season');
+                var config = {
+                  method: 'get',
+                  url: 'https://api.themoviedb.org/3/tv/' + tv + '/season/' + season + '?language=en-US',
+                  headers: {
+                    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZGVmNjQ' +
+                    '4ZWQ5YTFhNDY5YjY5MzZlMDNhMjI5Yzg5NiIsInN1YiI6IjYzMWUzM2Q5MGQyZ' +
+                    'jUzMDA3YzZiZDc4OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjo' +
+                    'xfQ.f6J0Wq5Np6EIroU5XVy7GzJlA1e8jyBXTFuAfr2hGf8',
+                  },
+                };
+
+                var array1 = [];
+                var array2 = [];
+                var options = { year: 'numeric', month: 'long', day: 'numeric' };
+                axios(config)
+                .then(function (response) {
+                  app.temporada = response.data;
+                  app.temporada['serieID'] = tv;
+                  app.episodios = response.data.episodes;
+                  app.nEpisodios = app.temporada.episodes.length;
+                  app.year = app.temporada.air_date.substr(0, 4);
+                  for (let i = 0; i < app.episodios.length; i++) {
+                    app.episodios[i].runtime = app.getHoras(app.episodios[i].runtime);
+                    let fecha = new Date(app.episodios[i].air_date);
+                    fecha.setDate(fecha.getDate() + 1);
+                    app.episodios[i].air_date = fecha.toLocaleDateString('en-US', options);
+                    app.episodios[i].vote_average =   app.episodios[i].vote_average.toFixed(1);
+                    var access = app.temporada.episodes[i].crew.map(function (c) {
+                      if (c.job == 'Director') {
+                        array1 = array1.concat(c);
+                        app.episodios[i]['directores'] = array1;
+
+                      }
+
+                      if (c.job == 'Writer') {
+                        array2 = array2.concat(c);
+                        app.episodios[i]['escritores'] = array2;
+                      }
+                    });
+
+                    array1 = [];
+                    array2 = [];
+                    var config = {
+                      method: 'get',
+                      url: 'https://api.themoviedb.org/3/tv/' + tv + '/season/' + season + '/episode/ ' + app.episodios[i].episode_number + '/images?api_key=cb7cbd51e680ebdaf2bdca4ec29c45bd',
+                      headers: { },
+                    };
+                    axios(config)
+                    .then(function (response) {
+                      app.episodios[i]['imagenes'] = response.data.stills;
+                      app.episodios[i]['imglength'] = response.data.stills.length;
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                    });
+
+                  }
+
+                  console.log(app.temporada);
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+              },
+
+              getHoras(min) {
+                let horas = Math.floor(min / 60);
+                let txt = '';
+                if (horas > 0) {
+                  txt = horas + 'h ';
+                }
+
+                horas = min - (60 * horas);
+                if (horas > 0) {
+                  txt = txt + horas + 'm';
+                }
+
+                return txt;
+              },
+
+            },
+            mounted() {
+              if(!localStorage.username){
+                location.href= "login.html";
+              }
+              this.detallesTemporada();
+            },
+          }).mount('#app');
+
+    </script>
+  </body>
+</html>

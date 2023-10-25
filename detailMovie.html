@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/0d70ca7b60.js" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="detailMovieStyle.css">
+
+</head>
+<body>
+    <div id="contenedor">
+
+        <!--inicio Navbar  -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark nav-background">
+            <div class="container-fluid navbar fixed-top">
+                <a class="navbar-brand">{{username}}</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                        </li>
+                        
+                    </ul>
+                    <span class="navbar-text">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="btn btn-primary" @click="logout">
+                                    Log Out
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        </nav>
+
+        <!--Info Pelicula-->
+        <div v-if="movie!=null" id="app" class="py-6">
+            <div class="card background ">
+                <div class="card-body info-peli">
+                    <div class="row">
+                        <div class="mx-auto col-md-12 col-lg-4 col-xl-4 mb-4 mb-lg-0"  >
+                            <div class="bg-image mt-5 hover-zoom ripple rounded ripple-surface cent">
+                                <img v-if="movie.poster_path==null" src="img/no-image-h.png" class=" card-img-top" alt="">
+                                <img v-else :src="'https://www.themoviedb.org/t/p/w440_and_h660_face'+movie.poster_path" class=" card-img-top" alt="">
+                            </div>
+                        </div>
+                        <div class="container col-lg-6 col-xl-6 mt-3" >
+                            <h4 class="text-white">{{movie.title}} ({{year}})</h4>
+                            <div class="mt-1 mb-0 text-muted small">
+                                <span class="text-white"style="border: 2px solid #ffffff; padding: 2px;">{{certification}}</span>
+                                <span class="text-blue-white"> • </span>
+                                <span>{{movie.release_date}}</span>
+                                <span class="text-blue-white"> • </span>
+                                <span v-for="genre in movie.genres">
+                                    <a :href="`detailGenre.html?genre_id=${genre.id}&type=movie`">{{genre.name}}  </a>
+                                    <span class="text-blue-white"> • </span>
+                                </span>
+                                <span>{{movie.runtime}} m</span>
+                            </div>
+                            <br>
+                            <span class="mt-4 text-blue-white">{{movie.tagline}}</span>
+                            <br>
+                            <div class="row">
+                                <div class="col-8 d-flex flex-row" v-if="(rateStatus == true)">
+                                    <button class="btn btn-success btn-sm" type="button" @click="deleteRate" title="Eliminar calificación">
+                                        Calificado <i class="fa-solid fa-star"></i>
+                                    </button>
+                                </div>
+                                <div class="col-8 d-flex" v-else>
+                                    <fieldset class="rating">
+                                        <input type="radio" id="star5" v-model="rating" :value="10" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+                                        <input type="radio" id="star4half" v-model="rating" :value="9" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+                                        <input type="radio" id="star4" v-model="rating" :value="8" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+                                        <input type="radio" id="star3half" v-model="rating" :value="7" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+                                        <input type="radio" id="star3" v-model="rating" :value="6" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+                                        <input type="radio" id="star2half" v-model="rating" :value="5" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+                                        <input type="radio" id="star2" v-model="rating" :value="4" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+                                        <input type="radio" id="star1half" v-model="rating" :value="3" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+                                        <input type="radio" id="star1" v-model="rating" :value="3" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+                                        <input type="radio" id="starhalf" v-model="rating" :value="1" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+                                    </fieldset>
+                                    <button class="btn btn-warning btn-sm ms-2" type="button" @click=rateMovie>Calificar!</button>
+                                </div>
+                                <button v-if="(favoriteStatus == false)" class="col-4 btn btn-outline-danger btn-sm circle-button" @click="favorite(false)">
+                                    <i class="fa-solid fa-heart"></i>
+                                </button>
+                                <button v-else class="col-4 btn btn-danger btn-sm circle-button" @click="favorite(true)">
+                                    <i class="fa-solid fa-heart"></i>
+                                </button>
+                            </div>
+                            
+                            <br>
+                            <h2 class="text-white">Resumen</h2>
+                            <p class="mt-4 text-white">
+                                {{movie.overview}}
+                            </p>
+                            <div class="">
+                                <div class="row row-cols-2 row-cols-md-4 g-4 mt-3">
+                                    <div v-for="director in crew" :key="director.id">
+                                        <span>
+                                            <strong class="text-white">{{director.name}}</strong>
+                                            <p v-if="director.job!=null" class="text-blue-white">{{director.job}}</p>
+                                            <p v-else>{{director.known_for_department}}</p>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Actores -->
+                <div class="card-body ">
+                   
+                    <hr class="mt-4">
+                    <div class="background">
+                        <div class="ms-4 row mt-4">
+                            <div class="col col-lg-8 col-xl-8">
+                                <strong class="text-blue">
+                                    <p>Actores Principales</p>
+                                </strong>
+                                <div v-if="topCast!=null">
+                                    <div class="container text-center"> 
+                                        <div class="carrusel ">                                  
+                                            <div class="d-flex flex-row mb-3 " > 
+                                                <div class="card-background card ms-4 mt-4" v-for="cast in topCast" style="width: 18rem;">
+                                                    <a :href="`actor.html?id=${cast.id}`">
+                                                        <img style="height: 300px;" v-if="cast.profile_path!=null" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+cast.profile_path" class="card-img-bottom" alt="...">
+                                                        <img style="height: 300px;" v-else src="img/no-image-h.png" class="card-img-bottom" alt="...">
+                                                    </a>
+                                                    <div class="card-body">
+                                                        <p class="card-text text-white"> {{cast.name}}  </p>
+                                                        <p class="card-text text-blue"> {{cast.character}} </p>   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="mt-4">
+                                <div v-if="reviews.total_results!=0">                    
+                                    <div class=" card-background card mb-3 text-gris-2" v-if="review!=null" >
+                                        <div class="row g-0 ">
+                                          <div class="col-md-4 text-center mt-2 ">
+                                            <img v-if="author.avatar_path==null" style="height: 300px;" src="img/no-image-h.png" class="img-fluid rounded-start " alt="...">
+                                            <img v-else-if="authorImg!=null" style="height: 300px;" :src="authorImg" class="img-fluid rounded-start" alt="...">
+                                            <img v-else style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+author.avatar_path" class="img-fluid rounded-start" alt="...">
+                                          </div>
+                                          <div class="col-md-8 mt-5 ">
+                                            <div class="card-body ">
+                                              <h5 class="card-title text-white">A review by {{author.username}}</h5>
+                                              <p class="card-text text-white">Written by {{author.username}} on {{onYear}}</p>
+                                              <p v-if="review!=null" class="card-text text-white">{{reviewContent}}</p>
+                                              <p v-if="showMore==true" class="card-text text-white">...</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Media -->
+                                <div class="ms-4 mt-4">
+                                    <div class="row">
+                                        <div class="col">
+                                            <span>
+                                                <strong class="text-blue">Media</strong>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <span class="text-blue-bottom">
+                                                <a @click="mediaChange('popular')">Popular</a>
+                                            </span>
+                                        </div>
+                                        <div class="col text-blue">
+                                            <span class="text-blue-bottom">
+                                                <a @click="mediaChange('videos')">Videos {{mediaCount.videos}}</a>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <span class="text-blue-bottom">
+                                                <a @click="mediaChange('backdrops')">Backdrops {{mediaCount.backdrops}}</a>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <span class="text-blue-bottom">
+                                                <a @click="mediaChange('posters')" >Posters {{mediaCount.posters}}</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div  v-if="(mediaStatus=='popular')">
+                                    <div class="container text-center "> 
+                                        <div class="carrusel ">                                  
+                                            <div class="d-flex flex-row mb-3" > 
+                                                <div class="media card ms-4 mt-4" v-for="media in mediaPopular" style="width: 28rem;">
+                                                    <a v-if="media.key!=null" :href="'https://www.youtube.com/watch?v='+media.key">
+                                                        <img style="height: 300px;" :src="'https://img.youtube.com/vi/'+media.key+'/hqdefault.jpg'" class="media card-img-top" alt="...">
+                                                    </a>
+                                                    <div v-else href="">
+                                                        <img style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+media.file_path" class="media card-img-top" alt="...">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div  v-else-if="(mediaStatus=='videos')">
+                                    <div class="container text-center"> 
+                                        <div class="carrusel">                                  
+                                            <div class="d-flex flex-row mb-3" > 
+                                                <div class=" media card ms-4 mt-4" v-for="video in videos" style="width: 28rem;">
+                                                    <a :href="'https://www.youtube.com/watch?v='+video.key">
+                                                        <img style="height: 300px;"  :src="'https://img.youtube.com/vi/'+video.key+'/hqdefault.jpg'" class="media card-img-top" alt="...">
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div  v-else-if="(mediaStatus=='backdrops')">
+                                    <div class="container text-center"> 
+                                        <div class="carrusel">                                  
+                                            <div class="d-flex flex-row mb-3" > 
+                                                <div class="card ms-4 mt-4" v-for="backdrop in backdrops" style="width: 28rem;">
+                                                    <img v-if="backdrop.file_path!=null" style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+backdrop.file_path" class="media card-img-top" alt="...">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div  v-else>
+                                    <div class="container text-center"> 
+                                        <div class="carrusel">                                  
+                                            <div class="d-flex flex-row mb-3" > 
+                                                <div class="card ms-4 mt-4" v-for="poster in posters" style="width: 18rem;">
+                                                    <img style="height: 100%;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+poster.file_path" class="media card-img-top" alt="...">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--Recomendaciones-->
+                                <hr class="mt-4">
+                                <div v-if="recommend!=null">
+                                    <span class="text-blue">
+                                        <strong>Recommendaciones</strong>
+                                    </span>
+                                    <div>
+                                        <div class="container text-center"> 
+                                            <div class="carrusel ">                                  
+                                                <div class="d-flex flex-row mb-3 " > 
+                                                    <div class="card-background card ms-4 mt-4" v-for="(movie, x) in recommend" style="width: 18rem;">
+                                                        <div v-if="movie!=null">
+                                                            <a :href="`detailMovie.html?id=${movie.id}`">
+                                                                <img v-if="movie.backdrop_path!=null"  style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+movie.backdrop_path" class="card-img-top" >
+                                                                <img v-else  style="height: 300px;"  src="img/no-image-h.png" class="card-img-top" alt="...">
+                                                            </a>
+                                                            <div class="card-body">
+                                                                <p class="card-text text-black"> {{movie.original_title}} </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+                            <!--Info y Keywords-->
+                            <div class="container col-md-6 col-lg-3 col-xl-3 border-sm-start-none border-start">
+                                <br>
+                                <div class="d-flex flex-row align-items-center mb-1">
+                                    <h6 class="mb-1 me-1 text-blue">Estado:</h4>
+                                </div>
+                                <p class="mb-1 me-1 text-black">{{movie.status}}</p>
+                                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                                    <h6 class="mb-1 me-1 text-blue">Titulo Original:</h4>
+                                </div>
+                                <p class="mb-1 me-1 text-black">{{movie.original_title}}</p>
+                                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                                    <h6 class="mb-1 me-1 text-blue" >Idioma Original:</h4>
+                                </div>
+                                <p class="mb-1 me-1 text-blackblack">{{movie.original_language}}</p>
+                                
+                                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                                    <h6 class="mb-1 me-1 text-blue">Presupuesto:</h4>
+                                </div>
+                                <p class="mb-1 me-1 text-black">${{movie.budget}}</p>
+                                
+                                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                                    <h6 class="mb-1 me-1 text-blue">Ganancias:</h4>
+                                </div>
+                                <p class="mb-1 me-1" v-if="movie.revenue == 0">-</p>
+                                <p class="mb-1 me-1 text-black" v-else-if="movie.revenue != 0">${{movie.revenue}}</p> 
+
+                                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                                    <h6 class="mb-1 me-1 text-blue">Palabras Clave:</h4>
+                                </div>
+                                <div>
+                                    <span v-for="keyword in keywords">
+                                        <a :href="`filtros.html?type=movie&keyword_id=${keyword.id}`" class="btn btn-more-info-home ms-2 mt-2">{{keyword.name}}</a>
+                                    </span>
+                                </div>
+                                <hr class="mt-4">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="background d-flex">
+
+            
+        </section>
+    </div>
+
+    <script type="text/javascript">
+        const {createApp} = Vue;
+
+        var app = createApp({
+            data(){
+                return{
+                    username: localStorage.getItem('username'),
+                    movie: null,
+                    userId:'',
+                    certification: null,
+                    recommend:null,
+                    recommendAverage:[],
+                    crew:'',
+                    cast:'',
+                    topCast:null,
+                    reviews:'',
+                    review:null,
+                    reviewContent:'',
+                    showMore:false,
+                    author:'',
+                    authorImg:null,
+                    keywords:'',
+                    images:null,
+                    videos:'',
+                    backdrops:null,
+                    posters:null,
+                    mediaPopular:null,
+                    mediaStatus:'popular',
+                    mediaCount:[{videos:0, backdrops:0, posters:0}],
+                    year: '',
+                    onYear:'',
+                    rating: '0.5',
+                    rateStatus: false,
+                    favoriteStatus: false,
+                    accountId:'',
+                    token: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzN2IxMDAyZjFjYmY3N2JkMTg1ZDg3NDkyMmFlZWU3MCIsInN1YiI6IjY1MTRiNzhlYmRkNTY4MDEzZjU4MzBjOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.OX11ObYS13YEQravRhAAKDfzpifakVGHdTnmxJ3rEeo',
+                }
+            }, methods : {
+                logout(){
+                        localStorage.removeItem('username');
+                        window.location="login.html"
+                    },
+                rateMovie() {
+                    var data = new FormData();
+                    data.append('value', app.rating);
+
+                    var config = {
+                        method: 'post',
+                        url: 'https://api.themoviedb.org/3/movie/'+app.movie.id+'/rating?value='+app.rating,
+                        headers: { 
+                            'Authorization':  this.token,
+                            
+                        },
+                        data : data
+                    };
+
+                    axios(config)
+                    .then(function (response) {
+                        console.log(JSON.stringify(response.data));
+                        app.rateStatus = true;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+
+                },
+                deleteRate(){
+                    var config = {
+                        method: 'delete',
+                        url: 'https://api.themoviedb.org/3/movie/'+app.movie.id+'/rating',
+                        headers: { 
+                            'Authorization':  this.token,
+                        }
+                    };
+
+                    axios(config)
+                    .then(function (response) {
+                        console.log(JSON.stringify(response.data));
+                        app.rateStatus = false;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                },
+                mediaChange(m){
+                    app.mediaStatus=m;
+                    console.log(app.mediaStatus);
+                },
+                getSlug(title){
+                    return title.replaceAll(' ','-')
+                },
+                favorite(fs){
+                    var data = new FormData();
+                    data.append('media_type', 'movie');
+                    data.append('media_id', app.movie.id);
+                    console.log(fs);
+                    data.append('favorite', fs);
+
+                    var config = {
+                        method: 'post',
+                        url: 'https://api.themoviedb.org/3/account/'+app.userId+'/favorite',
+                        headers: { 
+                            'Authorization':  this.token,
+                        },
+                        data : data
+                    };
+
+                    axios(config)
+                    .then(function (response) {
+                        console.log(JSON.stringify(response.data));
+                        app.favoriteStatus == false ? app.favoriteStatus=true : app.favoriteStatus=false
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                },
+               
+            },
+            mounted(){
+                if(!localStorage.username){
+                    location.href= "login.html";
+                }
+                var queryString = window.location.search;
+                var urlParams = new URLSearchParams(queryString);
+                var movieId = urlParams.get('id')
+                var token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzN2IxMDAyZjFjYmY3N2JkMTg1ZDg3NDkyMmFlZWU3MCIsInN1YiI6IjY1MTRiNzhlYmRkNTY4MDEzZjU4MzBjOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.OX11ObYS13YEQravRhAAKDfzpifakVGHdTnmxJ3rEeo';
+                
+               // PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/' + movieId + '?language=es-MX',
+                    headers: {
+                        'Authorization': this.token,
+                    }
+                };
+
+                var configOriginal = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/' + movieId,
+                    headers: {
+                        'Authorization': this.token,
+                    }
+                };
+
+                axios(config)
+                    .then(function (response) {
+                        app.movie = response.data;
+                        year_aux = app.movie.release_date;
+                        app.year = year_aux.substring(0, 4);
+
+                        if (!app.movie.overview) {
+                        
+                            axios(configOriginal)
+                                .then(function (altResponse) {
+                                    if (altResponse.data.overview) {
+                                        app.movie.overview = altResponse.data.overview;
+                                        app.movie.tagline = altResponse.data.tagline;
+                                    }
+                                })
+                            .catch(function (altError) {
+                                console.error(altError);
+                            });
+                        }
+                    })
+                .catch(function (error) {
+                    window.location = "movies.html";
+                    console.log(error);
+                });
+
+
+                //CAST Y CREW DE PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/'+movieId+'/credits?language=es-MX',
+                    headers: { 
+                        'Authorization': token,
+                    }
+                };
+                var array1=[];
+                
+                axios(config)
+                .then(function (response) {
+                    app.crew = response.data;
+                    app.cast = response.data.cast
+
+                    var count = 0;
+                    var arrayCast = [];
+                    var access = app.cast.map(function(c){
+                        if (count<15) {
+                            count++;
+                            arrayCast = arrayCast.concat(c)
+                        }
+                    })
+
+                    var access = app.crew.crew.map(function(c){
+                        if(c.job=='Director'){
+                            array1 = array1.concat(c)
+                        }
+                    })
+
+                    var contador = 0
+                    var access = app.crew.crew.map(function(c){
+                        if(c.known_for_department!='Acting' && c.known_for_department!='Production' && c.job!='Thanks' && c.job!='Other' && contador<=7){
+                            contador++;
+                            array1=array1.concat(c)
+                        }
+                    })
+                    app.topCast = arrayCast;
+                    app.crew= [...array1]
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                axios(config)
+                .then(function (response) {
+                    app.reviews = response.data;
+                    
+                    if (app.reviews && app.reviews.results && Array.isArray(app.reviews.results)) {
+                        var access = app.reviews.results.map(function(r) {
+                            app.review = r;
+                            app.author = r.author_details;
+                        });
+                        
+                        console.log(app.review);
+
+                        if (app.review != null) {
+                            app.onYear = app.review.created_at.substring(0, 10);
+                            app.reviewContent = app.review.content.substring(0, 500);
+
+                            if (app.review.content.length > 500) {
+                                app.showMore = true;
+                            }
+
+                            if (app.author && app.author.avatar_path != null) {
+                                if (app.author.avatar_path.substring(0, 2) === '/h') {
+                                    app.authorImg = app.author.avatar_path.substring(1, app.author.avatar_path.length);
+                                }
+                            }
+                        }
+                    }
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+
+                //KEYWORDS DE PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/'+movieId+'/keywords',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+
+                axios(config)
+                .then(function (response) {
+                    app.keywords = response.data.keywords;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //VIDEOS DE PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/'+movieId+'/videos?language=en-US',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+                
+                var array=[];
+                axios(config)
+                .then(function (response) {
+                    app.videos = response.data.results;
+                    app.mediaCount.videos = app.videos.length;
+                    var access = app.videos.map(function(v){
+                        if(array[0]==null && (v.name=='Official Teaser' || v.name=='Official Trailer')){
+                            array = array.concat(v);
+                        }
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //IMAGENES DE PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/'+movieId+'/images',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+
+                axios(config)
+                .then(function (response) {
+                    app.images = response.data;
+                    var count = 0;
+                    var arrayBackdrops=[];
+                    var access = app.images.backdrops.map(function(b){
+                        if(array[1]==null || b.vote_count>array.vote_count){
+                            array = array.concat(b);
+                        }
+                        if(count<15){
+                            count++
+                            arrayBackdrops = arrayBackdrops.concat(b);
+                        }
+                    })
+
+                    count = 0;
+                    var arrayPosters=[];
+                    var access = app.images.posters.map(function(b){
+                        if(array[2]==null || b.vote_count>array.vote_count){
+                            array = array.concat(b)
+                        }
+                        if(count<15){
+                            count++;
+                            arrayPosters = arrayPosters.concat(b);
+                        }
+                    })
+                    app.posters = arrayPosters;
+                    app.backdrops = arrayBackdrops;
+
+                    app.mediaPopular = array;
+                    app.mediaCount.backdrops = app.images.backdrops.length;
+                    app.mediaCount.posters = app.images.posters.length;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //RECOMENDACIONES
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/'+movieId+'/recommendations',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+
+                axios(config)
+                .then(function (response) {
+                    app.recommend = response.data.results;
+                    var arrayAverage = []
+                    var average
+                    var count = 0;
+                    var access = app.recommend.map(function(r){
+                        average = r.vote_average;
+                        average = average.toFixed(1);
+                        var aux = average.replace(/[$.]/g,'')
+                        arrayAverage = arrayAverage.concat(aux);
+                        count++;
+                    })
+                    app.recommendAverage=arrayAverage
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //USER ID
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/account',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+                
+                var userIdAux;
+                axios(config)
+                .then(function (response) {
+                    app.userId = response.data.id;
+                    userIdAux = app.userId
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //CALIFICACION PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/account/'+userIdAux+'/rated/movies',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+
+                axios(config)
+                .then(function (response) {
+                    var access = response.data.results.map(function(r){
+                        if(r.id==movieId){
+                            console.log('se encuentra');
+                            app.rateStatus = true;
+                        }
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //PELICULA FAVORITA 
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/account/'+userIdAux+'/favorite/movies',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+
+                axios(config)
+                .then(function (response) {
+                    var access = response.data.results.map(function(r){
+                        if(r.id==movieId){
+                            console.log('se encuentra fav');
+                            app.favoriteStatus = true;
+                        }
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+                //CLASIFICACION DE PELICULA
+                var config = {
+                    method: 'get',
+                    url: 'https://api.themoviedb.org/3/movie/'+movieId+'/release_dates',
+                    headers: { 
+                        'Authorization':  this.token,
+                    }
+                };
+
+                axios(config)
+                .then(function (response) {
+                    var access = response.data.results.map(function(r){
+                        if(r.iso_3166_1=='US'){
+                            app.certification = r.release_dates[0].certification
+                        }
+                    })
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+            }
+        }).mount('#contenedor')
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>

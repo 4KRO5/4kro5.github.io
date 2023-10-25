@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TV Show</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2"></script>
+    <script
+      src="https://kit.fontawesome.com/0d70ca7b60.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="SetalleSerieStyle.css" />
+  </head>
+  <body class="bg">
+    <div id="contenedor">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg" style=" color:#ffff; background-color: #202DBC;;">
+        <div class="container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          </button>
+          <div class="collapse navbar-collapse">
+            
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item mt-2 ms-3">
+                <h5 style="padding-top: 5px;">
+                    {{username}}
+                </h5>
+              </li>
+              <li class="nav-item mt-2 ms-3">
+                <h5>
+                    <a class="nav-link active text-light" aria-current="page" href="index.html">Home</a>
+                  </h5>
+              </li>
+            </ul>
+            
+            <form class="d-flex ms-4">
+              <a class="btn btn-primary" @click="logout">
+                <i class="fas fa-door-open"></i>
+                Log Out
+            </a>
+            </form>
+          </div>
+        </div>
+      </nav>
+      
+      <section class="infoSerie">
+        <div class="container">
+          <div class="row">
+            <!-- Img -->
+            <div class="img col-4">
+              <img
+                v-if="tvSerie.poster_path !== null"
+                class="card-img-top"
+                :src="'https://image.tmdb.org/t/p/w600_and_h900_bestv2' + tvSerie.poster_path"
+              />
+              <img v-else class="card-img-top" src="img/no-image-h.png" />
+            </div>
+            <div class="col-8">
+              <h3 class="text-white">
+                <strong>{{ tvSerie.name }}</strong> ({{ tvSerie.first_air_date }})
+              </h3>
+              <p class="card-text text-white">
+                <span class="badge border"><span style="color: #dfb040;">★</span> {{tvSerie.vote_average}}</span> | {{yearSeason}} •
+                {{countEpisode}} Episodes
+              </p>
+              <div class="mt-1 mb-4 text-muted small">
+                <span v-for="(item, index) in tvSerie.genres" :key="index">
+                  <a
+                    :href="`filtros.html?genre_id=${item.id}&type=tv&sort_by=popularity&order=desc`"
+                    class="text-white"
+                    >{{ item.name }}</a
+                  >
+                  <span
+                    class="text-white"
+                    v-if="index !== tvSerie.genres.length - 1"
+                    >,
+                  </span>
+                </span>
+              </div>
+              
+              <div class="row">
+                <div class="col d-flex flex-row" v-if="rateStatus == true">
+                    <button class="btn btn-success btn-sm" type="button" style="background-color: #dfb040;" @click="deleteRate()" title="Remove rating">
+                        Rated </i>
+                    </button>
+                </div>
+                <div class="col d-flex flex-row" v-else>
+                    <fieldset class="rating">
+                        <input type="radio" id="star5" v-model="rating" :value="10" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+                        <input type="radio" id="star4half" v-model="rating" :value="9" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+                        <input type="radio" id="star4" v-model="rating" :value="8" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+                        <input type="radio" id="star3half" v-model="rating" :value="7" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+                        <input type="radio" id="star3" v-model="rating" :value="6" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+                        <input type="radio" id="star2half" v-model="rating" :value="5" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+                        <input type="radio" id="star2" v-model="rating" :value="4" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+                        <input type="radio" id="star1half" v-model="rating" :value="3" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+                        <input type="radio" id="star1" v-model="rating" :value="3" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+                        <input type="radio" id="starhalf" v-model="rating" :value="1" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+                    </fieldset>
+                    <button class="btn btn-warning btn-sm" type="button" @click="addRate()">Rate it!</button>
+                </div>
+                <button v-if="(favStatus==false)" class="col btn btn-outline-danger btn-sm" @click="favorites(false)">
+                  Add to favorites
+              </button>
+              <button v-else class="col btn btn-danger btn-sm" @click="favorites(true)">
+                  Marked as favorite
+              </button>
+            </div>
+              
+              <br />
+              <span class="text-white">{{ tvSerie.tagline }}</span>
+              <h4 class="mt-4 text-white"><strong>Overview</strong></h4>
+              <p class="mt-2 text-white">{{ tvSerie.overview }}</p>
+              <div class="">
+                <div class="row row-cols-2 row-cols-md-4 g-4 mt-4">
+                  <div v-for="creator in tvSerie.created_by" :key="creator.id">
+                    <span>
+                      <strong class="text-white">{{ creator.name }}</strong>
+                      <p class="text-white">Creator</p>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="container">
+          <div class="row">
+            <div class="col-8">
+              <div class="container">
+                <h2>Main Actors</h2>
+                <div class="d-flex overflow-auto">
+                  <!-- Utilizamos clases de Bootstrap para hacer que el contenido sea desplazable -->
+                  <div class="d-flex">
+                    <!-- Itera sobre los actores y muestra los cards en una sola línea -->
+                    <div class="col-2" v-for="item in casting.cast">
+                      <div
+                        class="card text-white"
+                        style="width: 8rem; border: none"
+                      >
+                        <a :href="`actor.html?id=${item.id}`">
+                          <img
+                            style="height: 150px"
+                            v-if="item.profile_path != null"
+                            :src="'https://www.themoviedb.org/t/p/w220_and_h330_face' + item.profile_path"
+                            class="card-img-top"
+                            alt="..."
+                          />
+                          <div class="card-body">
+                            <p class="card-text text-white">{{item.name}}</p>
+                            <p class="card-text p-color font-weight-bold">
+                              {{item.character}}
+                            </p>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="container">
+                <h2>Last Season</h2>
+                <div class="card mb-3">
+                  <div class="row g-0">
+                    <div class="col-md-4">
+                      <a
+                        :href="`detalleTemporada.html?tv=${tvSerie.id}&season=${numbSeason}`"
+                        class="stretched-link"
+                      >
+                        <img
+                          v-if="imgSeason != null"
+                          class="card-img-left w-100"
+                          :src="'https://www.themoviedb.org/t/p/w220_and_h330_face' + imgSeason"
+                        />
+                        <img
+                          v-else
+                          class="card-img-left w-100"
+                          src="img/no-image-h.png"
+                        />
+                      </a>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body cardsecond">
+                        <h5 class="card-title">{{nameSeason}}</h5>
+                        <p class="card-text text-white">
+                          <span class="badge"><span style="color: #dfb040;">★</span> {{tvSerie.vote_average}}</span> | {{yearSeason}} •
+                          {{countEpisode}} Episodes
+                        </p>
+                        <p class="card-text text-white">{{ovSeason}}</p>
+                        <a
+                          :href="`detalleTemporada.html?tv=${tvSerie.id}&season=${numbSeason}`"
+                        >
+                          <span class="">
+                            <strong class="p-color"> View all seasons</strong>
+                          </span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="container">
+                <h2>Media</h2>
+                <div
+                  class="btn-group"
+                  role="group"
+                  aria-label="Basic radio toggle button group"
+                >
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="Basic radio toggle button group"
+                  >
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="btnradio"
+                      id="btnradio1"
+                      autocomplete="off"
+                      checked
+                    />
+                    <label
+                      class="btn btn-outline-primary active-button"
+                      for="btnradio1"
+                    >
+                      <a @click="mediaChange('popular')">Most Popular</a>
+                    </label>
+
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="btnradio"
+                      id="btnradio2"
+                      autocomplete="off"
+                    />
+                    <label
+                      class="btn btn-outline-primary active-button"
+                      for="btnradio2"
+                    >
+                      <a @click="mediaChange('videos')">Videos</a>
+                    </label>
+
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="btnradio"
+                      id="btnradio3"
+                      autocomplete="off"
+                    />
+                    <label
+                      class="btn btn-outline-primary active-button"
+                      for="btnradio3"
+                    >
+                      <a @click="mediaChange('backdrops')">Backdrops</a>
+                    </label>
+
+                    <input
+                      type="radio"
+                      class="btn-check"
+                      name="btnradio"
+                      id="btnradio4"
+                      autocomplete="off"
+                    />
+                    <label
+                      class="btn btn-outline-primary active-button"
+                      for="btnradio4"
+                    >
+                      <a @click="mediaChange('posters')">Posters</a>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="d-flex overflow-auto">
+                  <div v-if="(mediaStatus=='popular')">
+                    <div class="container text-center">
+                        <div class="carrusel">
+                            <div class="d-flex flex-row mb-3">
+                                <div class="card ms-4" v-for="media in mediaPopular" style="width: 12rem;">
+                                    <a v-if="media.key!=null" :href="'https://www.youtube.com/watch?v='+media.key">
+                                        <img style="height: 300px;" :src="'https://img.youtube.com/vi/'+media.key+'/hqdefault.jpg'" class="card-img-top" alt="...">
+                                    </a>
+                                    <div v-else href="">
+                                        <img style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+media.file_path" class="card-img-top" alt="...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="(mediaStatus=='videos')">
+                  <div class="container text-center">
+                      <div class="carrusel">
+                          <div class="d-flex flex-row mb-3">
+                              <div class="card ms-4 mt-4" v-for="video in videos" style="width: 18rem;">
+                                  <a v-if="video!=null" :href="'https://www.youtube.com/watch?v='+video.key">
+                                      <img style="height: 300px;"  :src="'https://img.youtube.com/vi/'+video.key+'/hqdefault.jpg'" class="card-img-top" alt="...">
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div v-else-if="(mediaStatus=='backdrops')">
+                <div class="container text-center">
+                    <div class="carrusel">
+                        <div class="d-flex flex-row mb-3">
+                            <div class="card ms-4 mt-4" v-for="backdrop in backdrops" style="width: 18rem;">
+                                <img v-if="backdrop.file_path!=null" style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+backdrop.file_path" class="card-img-top" alt="...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else> 
+                <div class="container text-center">
+                    <div class="carrusel">
+                        <div class="d-flex flex-row mb-3">
+                            <div class="card ms-4 mt-4" v-for="poster in posters" style="width: 18rem;">
+                                <img style="height: 300px;" :src="'https://www.themoviedb.org/t/p/w220_and_h330_face'+poster.file_path" class="card-img-top" alt="...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+            </div>
+              <div class="container">
+                <h3>Recommendation</h3>
+                <div class="row">
+                  <div class="d-flex overflow-auto">
+                    <div class="d-flex">
+                      <div
+                        class="col-0 ms-4"
+                        v-for="reco in recomendation.results"
+                      >
+                        <div class="card bg-gris-3" style="width: 12rem">
+                          <div v-if="reco != null">
+                            <a :href="`Detalles serie.html?id=${reco.id}`">
+                              <img
+                                v-if="reco.backdrop_path != null"
+                                style="height: 300px"
+                                :src="'https://www.themoviedb.org/t/p/w220_and_h330_face' + reco.backdrop_path"
+                                class="card-img-top"
+                              />
+                              <img
+                                v-else
+                                style="height: 300px"
+                                src="img/no-image-h.png"
+                                class="card-img-top"
+                                alt="..."
+                              />
+                            </a>
+                            <div class="card-body">
+                              <p class="card-text text-primary">
+                                {{reco.name}}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-1">
+              <div
+                class="container border-start border-primary" style="width: 400px;"
+              >
+                <div class="d-flex flex-row align-items-center mb-1">
+                  <h6 class="mb-1 me-1 p-color">Status:</h6>
+                </div>
+                <p class="mb-1 me-1 text-dark">{{tvSerie.status}}</p>
+                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                  <h6 class="mb-1 me-1 p-color">Type:</h6>
+                </div>
+                <p class="mb-1 me-1 text-dark">{{tvSerie.type}}</p>
+                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                  <h6 class="mb-1 me-1 p-color">Original Language:</h6>
+                </div>
+                <p class="mb-1 me-1 text-dark">{{tvSerie.original_language}}</p>
+                <div class="d-flex flex-row align-items-center mb-1 mt-4">
+                  <h6 class="mb-1 me-1 p-color">Keywords:</h6>
+                </div>
+                <div class="button-container">
+                  <span v-for="kwords in keyword">
+                    <a 
+                      :href="`filtros.html?keyword_id=${kwords.id}&type=tv`" 
+                      class="btn btn-secondary ms-2 mt-2"
+                    >
+                      {{kwords.name}}
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script src="ScriptDetalleSerie.js"></script>
+  </body>
+</html>
