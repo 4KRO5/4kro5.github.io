@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>filtrados</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
+</head>
+
+<body style="background-color: RGB(233, 236, 251)">
+  <div id="app">
+    <section style="
+          background-color: rgb(32, 45, 188);
+          padding: 10px;
+          margin: 0;
+          width: 100%;
+        ">
+        <ul class="menu-nav d-flex text-reset list-unstyled m-0 p-0 primary">
+          
+          <li class="text-white me-4"><a @click="home">home</a></li>
+          <li class="text-white me-4"><a>{{userName}}</a></li>
+          <li class="text-white ms-auto">
+            <button class="btn btn-primary" style="background-color: rgb(59, 72, 222)">
+              Log out
+            </button>
+          </li>
+        </ul>
+      <ul class=" list-unstyled pt-4">
+        <li>
+          <div class="in input-group mb-3">
+            <input type="text" class="form-control" placeholder="type a word" aria-label="Recipient's username"
+              aria-describedby="button-addon2">
+            <button class="btn btn-outline-primary" @click="getPopularMovies" type="button"
+              id="button-addon2">search</button>
+          </div>
+        </li>
+      </ul>
+
+    </section>
+    <div class="menu-boton">
+      <ul class=" orden-menu list-unstyled flex my-1">
+        <li class="popu">ordenar por: </li>
+
+        <li class="popu"><a id="" class="btn btn- 
+          border-primary " role="button" @click="getPopularMovies">Popular</a></li>
+
+        <li class="switch">
+          <div class=" btn-group bg-primary rounded-pill" role="group" aria-label="Basic radio toggle button group">
+            <input @click="getPlayingMovies" type="radio" class="btn-check" name="btnradio" id="btnradio1" checked>
+
+            <label class="switch-btn btn btn-primary rounded-pill" for="btnradio1">Movies</label>
+
+            <input @click="getSeries" type="radio" class="btn-check " name="btnradio" id="btnradio2">
+            <label class="switch-btn btn btn-primary rounded-pill " for="btnradio2"> Series</label>
+
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content col-10 mx-auto ">
+      <div v-for="(poster,i) in posterUrl" :key="i" class="cards card ">
+        <a @click="goToDetails(movieInfo[i].id)"><img :src="poster" alt="imagen" style="max-width: 95%;"></a>
+
+        <div class="caja">
+          <div class="info">
+            <h5 v-if="movieInfo[i].title==undefined">{{movieInfo[i].name}}</h5>
+            <h5 v-else="">{{movieInfo[i].title}}</h5>
+            <p v-if="movieInfo[i].first_air_date==undefined">{{movieInfo[i].release_date}}</p>
+            <p v-else="">{{movieInfo[i].first_air_date}}</p>
+          </div>
+          <div class="info2 m-0 p-0 ">
+            <p class="col-md-12">{{movieInfo[i].overview}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+<script>
+
+  const { createApp, ref } = Vue;
+
+  createApp({
+    setup() {
+      var movieInfo = ref([])
+      var posterUrl = ref([])
+      var token = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYzlkOTYwYzg4MjY3NmJiOTdhZTQwMzJmNWI4NzhmYSIsInN1YiI6IjY1MTllYTMzOTNiZDY5MDBlMTJlNjZmMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.3zutzrJTyvmwYw2IOc1baV4OnfwyX0-M4dMjX8940kY'
+
+      async function getSeries() {
+        const getBaseUrl = await axios.get(
+          "https://api.themoviedb.org/3/configuration", {
+          headers: {
+            'Authorization': `bearer ${token}`
+          }
+        }
+        );
+
+        const res = await axios.get('https://api.themoviedb.org/3/tv/popular', {
+          headers: {
+            'Authorization': `bearer ${token}`
+          }
+        })
+
+        const seriesInfo = res.data.results
+        movieInfo.value = seriesInfo
+        console.log(movieInfo.value[0].name)
+
+        const baseUrl = getBaseUrl.data.images.base_url
+
+        posterUrl.value = seriesInfo.map((p) => baseUrl + "original" + p.poster_path)
+      }
+
+      async function getPlayingMovies() {
+        res = await
+          axios.get(
+            'https://api.themoviedb.org/3/movie/now_playing', {
+            headers: {
+              'Authorization': `bearer ${token}`
+            }
+          }
+          );
+
+        movieInfo.value = res.data.results
+
+        const getBaseUrl = await axios.get(
+          "https://api.themoviedb.org/3/configuration", {
+          headers: {
+            'Authorization': `bearer ${token}`
+          }
+        }
+        );
+        const baseUrl = getBaseUrl.data.images.base_url
+        const secondUrl = movieInfo.value
+
+        posterUrl.value = secondUrl.map((p) => baseUrl + "original" + p.poster_path)
+      }
+
+      async function getPopularMovies() {
+
+        let res = await axios.get("https://api.themoviedb.org/3/movie/popular", {
+          headers: {
+            'Authorization': `bearer ${token}`
+          }
+        }
+        )
+        const infoPopularMovies = res.data.results
+        movieInfo.value = infoPopularMovies
+
+        let getBaseUrl = await axios.get(
+          "https://api.themoviedb.org/3/configuration", {
+          headers: {
+            'Authorization': `bearer ${token}`
+          }
+        }
+        );
+
+        const baseUrl = getBaseUrl.data.images.base_url
+
+        posterUrl.value = infoPopularMovies.map((p) =>
+          baseUrl + "original" + p.poster_path
+        )
+
+      }
+
+      
+      function goToDetails(movieId) {
+        window.location.href = `detalles.html?id=${movieId}`;
+      }
+
+      function logOut() {
+        localStorage.removeItem('username');
+        window.location = "login.html"
+      }
+
+      function home() {
+        window.location = "index.html"
+      }
+
+      return {
+        getPlayingMovies,
+        getSeries,
+        getPopularMovies,
+        movieInfo,
+        posterUrl,
+        goToDetails,
+        home,
+        userName: localStorage.getItem('userName')
+
+      }
+    }, mounted() {
+      this.getPlayingMovies()
+
+      //if (!localStorage.username) {
+      // location.href = "login.html";
+      // }
+
+    }
+  }).mount("#app");
+</script>
+
+</html>
+
+<style>
+  h5 {
+    color: RGB(58, 69, 197);
+  }
+
+  .in {
+    width: 30%;
+    margin-left: 3%;
+  }
+
+  .usr-home{
+    display: flex;
+  }
+  .popu {
+    margin-left: 105;
+
+  }
+
+  .cards {
+    display: grid;
+    padding: 1%;
+    background-color: RGB(181, 186, 242);
+    color: beige;
+    grid-template-columns: 35% 65%;
+    margin-bottom: 2%;
+    border-radius: 15px;
+  }
+
+  img {
+    border-radius: 10px;
+  }
+
+
+
+
+  .info {
+    background-color: RGB(181, 186, 242);
+    width: 100%;
+    height: 10%;
+    padding: 10px;
+  }
+
+  .info2>p {
+    height: 100%;
+    background-color: blue;
+    border-radius: 15px;
+    padding: 5%;
+    margin-right: 1%;
+  }
+
+  .caja {
+    display: grid;
+    max-width: 100%;
+    grid-template-rows: 30% 70%;
+    border-radius: 3%;
+
+  }
+
+
+  .orden-menu {
+    display: flex;
+    margin-left: 10%;
+    padding: 1%;
+  }
+
+  .orden-menu>li {
+    margin: 1%;
+  }
+
+
+  .content {
+    height: auto;
+
+  }
+
+
+
+  @media (max-width: 700px) {
+    .in {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .menu-boton {
+      text-align: center;
+
+    }
+
+
+    .cards {
+      grid-template-columns: 100%;
+    }
+
+    img {
+      max-width: 300px;
+    }
+  }
+
+  @media (min-width:920px) {
+    .caja {
+      display: grid;
+      height: 195px;
+      grid-template-rows: 35% 65%;
+      border-radius: 3%;
+    }
+
+    .cards {
+      height: 215px;
+      grid-template-columns: 12% 88%;
+    }
+
+    .info2>p {
+      padding: 1%;
+    }
+
+    img {
+      height: 92%;
+      width: 92%;
+    }
+  }
+</style>
