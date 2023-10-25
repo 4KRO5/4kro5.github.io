@@ -104,11 +104,11 @@
                           <div class="col-sm-3" style="color: #202DBC" >
                             <h4 >Equipo {{episodio.crew.length}}</h4>
                             <p class="h6">Dirigido por:</p>
-                            <p v-for="director in episodio.directores"> <a :href="`actor.html?id=${director.id}`" class="text-decoration-none">{{director.name}}</a></p>
+                            <p v-for="director in episodio.directores"> <a :href="`detailActor.html?id=${director.id}`" class="text-decoration-none">{{director.name}}</a></p>
                             <p v-if="episodio.directores == null" style="color: #202DBC">No se ha añadido ningun director.</p>
                             <p class="h6" style="color: #202DBC">Escrito por: </p>
 
-                            <p v-for="escritor in episodio.escritores"><a :href="`actor.html?id=${escritor.id}`" class="text-decoration-none">{{escritor.name}}</a></p>
+                            <p v-for="escritor in episodio.escritores"><a :href="`detailActor.html?id=${escritor.id}`" class="text-decoration-none">{{escritor.name}}</a></p>
                             <!-- Cuando no carga  -->
                             <p v-if="episodio.escritores == null">No se ha agregado ningún escritor.</p>
                           </div>
