@@ -123,7 +123,7 @@
                                 <img v-if="actor.profile_path != null" class="profile" :src="`https://image.tmdb.org/t/p/w300/${actor.profile_path}`" alt="">
                                 <img v-else class="" src="img/no-image-h.png" alt="">
                                 <div class="info">
-                                  <p><a :href="`detailActor.html?id=${actor.id}`" class="h6 text-decoration-none" style="color: #202DBC"><br>{{actor.name}}</a></p>
+                                  <p><a :href="`actor.html?id=${actor.id}`" class="h6 text-decoration-none" style="color: #202DBC"><br>{{actor.name}}</a></p>
                                   <p style="color: black">{{actor.character}}</p>
                                 </div>
                               </li>
